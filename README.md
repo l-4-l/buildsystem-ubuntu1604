@@ -12,4 +12,6 @@ To build an image:
 Optionally add --no-cache
 
 To use this container (example):
- docker run --rm -w /usr/src/myapp/build -v `pwd`:/usr/src/myapp -v /opt/Qt512:/opt/Qt512 -e CMAKE_PREFIX_PATH=/opt/Qt512 scantailorbuild make -j 2
+* docker run --rm -w /usr/src/myapp/build -v `pwd`:/usr/src/myapp -v /opt/Qt512:/opt/Qt512 -e CMAKE_PREFIX_PATH=/opt/Qt512 scantailorbuild make -j 2
+
+Where /opt/Qt512 is a Qt5XX prefix where it was compiled on the host system.
