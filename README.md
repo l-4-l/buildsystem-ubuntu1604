@@ -11,7 +11,7 @@ To build an image:
 
 Optionally add --no-cache
 
-To use this container (example):
-* docker run --rm -w /usr/src/myapp/build -v `pwd`:/usr/src/myapp -v /opt/Qt512:/opt/Qt512 -e CMAKE_PREFIX_PATH=/opt/Qt512 scantailorbuild make -j 2
-# docker cp <containerId>:/file/path/within/container /host/path/target
-Where /opt/Qt512 is a Qt5XX prefix where it was compiled on the host system.
+To extract deb-file from this container:
+ docker cp scantailorbuild:/usr/src/myapp/scantailor-advanced/build/scantailor-advanced-1.0.16-Linux.deb ./
+
+where ./ is a path to the file on a host system

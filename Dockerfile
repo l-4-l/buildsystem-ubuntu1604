@@ -82,7 +82,8 @@ RUN cd ${QT_FOLDER} \
 
 RUN cd ${QT_FOLDER} && make -j `nproc`
 
-RUN cd ${QT_FOLDER} && make install
+RUN cd ${QT_FOLDER} \
+  && make install
 
 RUN rm -r ${QT_FOLDER}
 
@@ -91,12 +92,13 @@ RUN apt-get install -y --no-install-recommends \
 
 RUN git clone https://github.com/4lex4/scantailor-advanced
 
-RUN qmake -v
-
-ENV CMAKE_PREFIX_PATH=/usr/src/qt/qtbase/lib/cmake/Qt5Core
+ENV CMAKE_PREFIX_PATH=/usr/local/Qt-5.12.0/
 
 RUN cd scantailor-advanced \
   && mkdir build \
   && cd build \
   && cmake -G "Unix Makefiles" --build .. \
   && make -j `nproc`
+
+RUN cd scantailor-advanced/build \
+  && cpack -G "DEB"
