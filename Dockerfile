@@ -1,7 +1,7 @@
 FROM amd64/ubuntu:16.04
 
 RUN mkdir /usr/src/myapp
-VOLUME /usr/src/myapp
+#VOLUME /usr/src/myapp
 WORKDIR /usr/src/myapp
 
 # install essentials (not all of them)
@@ -13,7 +13,7 @@ RUN apt-get install -y --no-install-recommends \
  libjpeg-dev libpng-dev libtiff5 libtiff5-dev \
  libpthread-stubs0-dev \
  apt-transport-https ca-certificates curl software-properties-common \
- xz-utils
+ xz-utils libegl1-mesa-dev libfreetype6-dev libgl1-mesa-dev
 
 
 # install cmake
@@ -37,12 +37,14 @@ ENV PATH="${CMAKE_PREFIX}/bin:${PATH}"
 ARG BOOST_VERSION=1.66.0
 ARG BOOST_DIR=boost
 ARG CONCURRENT_PROCESSES=1
+ARG BOOST_FILENAME=boost_1_66_0.tar.gz
+ARG BOOST_URL=https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/${BOOST_FILENAME}
 ENV BOOST_VERSION ${BOOST_VERSION}
 
-COPY boost_1_66_0.tar.gz .
-
-RUN mkdir -p ${BOOST_DIR} && mv boost_1_66_0.tar.gz ${BOOST_DIR}/boost.tar.gz && cd ${BOOST_DIR} \
+RUN curl -L ${BOOST_URL} -o ./${BOOST_FILENAME} \
+    && mkdir -p ${BOOST_DIR} && mv ${BOOST_FILENAME} ${BOOST_DIR}/boost.tar.gz && cd ${BOOST_DIR} \
     && tar -xzf boost.tar.gz --strip 1 \
+    && rm boost.tar.gz \
     && ./bootstrap.sh \
     && ./b2 -q --with-test toolset=gcc link=shared threading=multi -j ${CONCURRENT_PROCESSES}  --prefix=/usr stage \
     && ./b2 -q --with-test toolset=gcc link=shared threading=multi --prefix=/usr install \
@@ -60,9 +62,12 @@ ARG QT_URL=https://download.qt.io/archive/qt/${QT_ARCHIVE_VERSION}/${QT_FILLVERS
 
 RUN curl -L ${QT_URL} -o ./${QT_FILENAME} \
   && tar -xf ./${QT_FILENAME} \
-  && rm ./${QT_FILENAME}
+  && rm ./${QT_FILENAME} \
+  && cd ${QT_FOLDER}
 
-RUN apt-get install libegl1-mesa-dev
+RUN apt-get install -y --no-install-recommends \
+  libfontconfig1-dev libgl1-mesa-dev
+#libgles2-mesa-dev
 
 RUN cd ${QT_FOLDER} \
   && ./configure -platform linux-g++ -release -shared \
@@ -75,7 +80,14 @@ RUN cd ${QT_FOLDER} \
     -skip qtwebengine -skip qtwebsockets -skip qtwebview -skip qtwinextras -skip qtxmlpatterns \
     -nomake examples -nomake tests -opensource -confirm-license -no-ltcg
 
-RUN make -j `nproc`
+RUN cd ${QT_FOLDER} && make -j `nproc`
 
-# sudo make install
+RUN cd ${QT_FOLDER} && make install
+
+RUN rm -r ${QT_FOLDER}
+
+RUN apt-get install -y --no-install-recommends \
+  git
+
+RUN git clone https://github.com/4lex4/scantailor-advanced
 
