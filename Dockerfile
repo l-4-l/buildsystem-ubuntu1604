@@ -91,3 +91,12 @@ RUN apt-get install -y --no-install-recommends \
 
 RUN git clone https://github.com/4lex4/scantailor-advanced
 
+RUN qmake -v
+
+ENV CMAKE_PREFIX_PATH=/usr/src/qt/qtbase/lib/cmake/Qt5Core
+
+RUN cd scantailor-advanced \
+  && mkdir build \
+  && cd build \
+  && cmake -G "Unix Makefiles" --build .. \
+  && make -j `nproc`
